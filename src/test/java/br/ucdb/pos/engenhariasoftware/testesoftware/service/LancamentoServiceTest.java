@@ -41,63 +41,154 @@ public class LancamentoServiceTest {
     private LancamentoService lancamentoService;
 
     @BeforeClass
-    public void init(){
+    public void init() {
         MockitoAnnotations.initMocks(this);
     }
 
+    @BeforeMethod
+    public void initMocks() {
+        when(lancamentoService.getTotalEntrada(anyListOf(Lancamento.class))).thenCallRealMethod();
+        when(lancamentoService.getTotalSaida(anyListOf(Lancamento.class))).thenCallRealMethod();
+        when(lancamentoService.somaValoresPorTipo(anyListOf(Lancamento.class), any(TipoLancamento.class))).thenCallRealMethod();
+
+    }
+
     @DataProvider(name = "lancamentos")
-    protected Object[][] getLancamentos(){
+    protected Object[][] getLancamentos() {
         return new Object[][]{
-                new Object[]{Arrays.asList(new LancamentoBuilder()
-                                .comValor(12).comTipo(SAIDA).build(),
-                        new LancamentoBuilder()
-                                .comValor(104.14).comTipo(SAIDA).build(),
-                        new LancamentoBuilder()
-                                .comValor(833.44).comTipo(ENTRADA).build(),
-                        new LancamentoBuilder()
-                                .comValor(439.87).comTipo(ENTRADA).build(),
-                        new LancamentoBuilder()
-                                .comValor(1434).comTipo(ENTRADA).build(),
-                        new LancamentoBuilder()
-                                .comValor(176).comTipo(ENTRADA).build(),
-                        new LancamentoBuilder()
-                                .comValor(194).comTipo(SAIDA).build(),
-                        new LancamentoBuilder()
-                                .comValor(347.98).comTipo(SAIDA).build(),
-                        new LancamentoBuilder()
-                                .comValor(98.87).comTipo(ENTRADA).build()
-                )}
+                new Object[]{
+                        Arrays.asList(
+                                new LancamentoBuilder().comDescricao("Salário").comData("05/07/2018").comValor(5000.00).comTipo(ENTRADA).build(),
+                                new LancamentoBuilder().comDescricao("Benefícios").comData("05/07/2018").comValor(170.00).comTipo(ENTRADA).build(),
+                                new LancamentoBuilder().comDescricao("Academia").comData("05/07/2018").comValor(75.00).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Parcela Carro").comData("05/07/2018").comValor(1227.00).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Cartão Nubank").comData("06/07/2018").comValor(876.78).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Cartão Submarino").comData("06/07/2018").comValor(455.78).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Parcela Carro").comData("05/07/2018").comValor(455.78).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Pós-Graduação").comData("10/07/2018").comValor(296.88).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Abastecimento").comData("08/07/2018").comValor(120.00).comTipo(SAIDA).build(),
+                                new LancamentoBuilder().comDescricao("Refeição").comData("13/07/2018").comValor(94.00).comTipo(SAIDA).build()
+                        ), "Salário", (long) 1
+                }
         };
     }
 
+    /**
+     * Método de teste responsável por validar o total de entradas da lista de lançamentos
+     *
+     * @param lancamentos
+     * @param itemBusca
+     * @param tamanhoEsperado
+     */
     @Test(dataProvider = "lancamentos")
-    public void getTotalSaidaTest(List<Lancamento> lancamentos){
-        given(lancamentoService.getTotalSaida(lancamentos)).willCallRealMethod();
-        given(lancamentoService.somaValoresPorTipo(lancamentos, SAIDA)).willCallRealMethod();
+    public void getTotalEntradaTest(List<Lancamento> lancamentos, String itemBusca, long tamanhoEsperado) {
+        final BigDecimal totalEsperado = BigDecimal.valueOf(5170.00);
+        final BigDecimal totalObtido = lancamentoService.getTotalEntrada(lancamentos);
+        assertEquals(totalObtido, totalEsperado);
 
-        final BigDecimal totalEsperado = BigDecimal.valueOf(658.12);
+    }
+
+    /**
+     * Método de teste responsável por validar o total de entradas da lista de lançamentos
+     *
+     * @param lancamentos
+     * @param itemBusca
+     * @param tamanhoEsperado
+     */
+    @Test(dataProvider = "lancamentos")
+    public void getTotalSaidaTest(List<Lancamento> lancamentos, String itemBusca, long tamanhoEsperado) {
+        final BigDecimal totalEsperado = BigDecimal.valueOf(3601.22);
         final BigDecimal totalObtido = lancamentoService.getTotalSaida(lancamentos);
         assertEquals(totalObtido, totalEsperado);
     }
 
+    /**
+     * Teste responsável por validar o tamanho da lista de lançamentos
+     *
+     * @param lancamentos
+     * @param itemBusca
+     * @param tamanhoEsperado
+     */
+    @Test(dataProvider = "lancamentos")
+    public void getTamanhoListaTest(List<Lancamento> lancamentos, String itemBusca, long tamanhoEsperado) {
+        when(lancamentoService.busca(itemBusca)).thenReturn(lancamentos);
+        when(lancamentoService.conta(itemBusca)).thenReturn((long) lancamentos.size());
+        when(lancamentoService.getResultadoVO(lancamentos, this.tamanhoPagina, lancamentos.size())).thenCallRealMethod();
+        given(lancamentoService.buscaAjax(itemBusca)).willCallRealMethod();
+        long tamanhoObtido = lancamentoService.buscaAjax(itemBusca).getTotalRegistros();
+        String mensagem = "Na busca por '" + itemBusca + "', era esperado que a pesquisa retornasse " + tamanhoEsperado + " registro(s), mas foi retornado " + tamanhoObtido + " registro(s).";
+        assertEquals(tamanhoObtido, tamanhoEsperado, mensagem);
+        verify(lancamentoService, atLeastOnce()).buscaAjax(itemBusca);
+    }
 
-    static class LancamentoBuilder{
+    /**
+     * Método de teste responsával por garantir que todo atributo da classe Lancamento esteja na LancamentoVO e não nula
+     *
+     * @param lancamentos
+     * @param itemBusca
+     * @param tamanhoEsperado
+     */
+    @Test(dataProvider = "lancamentos")
+    public void getResultadoVOTest(List<Lancamento> lancamentos, String itemBusca, long tamanhoEsperado) {
+        when(lancamentoService.busca(itemBusca)).thenReturn(lancamentos);
+        when(lancamentoService.conta(itemBusca)).thenReturn((long) lancamentos.size());
+        when(lancamentoService.getResultadoVO(lancamentos, this.tamanhoPagina, lancamentos.size())).thenCallRealMethod();
+        given(lancamentoService.buscaAjax(itemBusca)).willCallRealMethod();
+        ResultadoVO resultado = lancamentoService.buscaAjax(itemBusca);
+        for (LancamentoVO lancamentoVO : resultado.getLancamentos()) {
+            assertTrue(doesObjectContainField(lancamentoVO, "id") & !Objects.isNull(lancamentoVO.getId()));
+            assertTrue(doesObjectContainField(lancamentoVO, "descricao") & lancamentoVO.getDescricao() != null);
+            assertTrue(doesObjectContainField(lancamentoVO, "valor") & lancamentoVO.getValor() != null);
+            assertTrue(doesObjectContainField(lancamentoVO, "dataLancamento") & lancamentoVO.getDataLancamento() != null);
+            assertTrue(doesObjectContainField(lancamentoVO, "tipoLancamento") && lancamentoVO.getTipoLancamento() != null);
+        }
+        verify(lancamentoService, atLeastOnce()).buscaAjax(itemBusca);
+    }
+
+    /**
+     * Método que busca em uma class por um atributo específico (privado)
+     *
+     * @param object    objeto a ser verificar
+     * @param fieldName nome do campo a ser verificado
+     * @return true se encontrado, e false caso contrário
+     */
+    public boolean doesObjectContainField(Object object, String fieldName) {
+        return Arrays.stream(object.getClass().getDeclaredFields()).anyMatch(f -> f.getName().equals(fieldName));
+    }
+
+    /**
+     * Classe LancamentoBuilder
+     * Responsável por construir um objeto da classe Lancamento usado no DataProvider
+     */
+    static class LancamentoBuilder {
         private Lancamento lancamento;
 
-        LancamentoBuilder(){
+        LancamentoBuilder() {
             lancamento = new Lancamento();
         }
 
-        LancamentoBuilder comValor(double valor){
+        LancamentoBuilder comData(String data) {
+            StringToDateConverter stringToDate = new StringToDateConverter();
+            lancamento.setDataLancamento(stringToDate.convert(data));
+            return this;
+        }
+
+        LancamentoBuilder comDescricao(String descricao) {
+            lancamento.setDescricao(descricao);
+            return this;
+        }
+
+        LancamentoBuilder comValor(double valor) {
             lancamento.setValor(BigDecimal.valueOf(valor));
             return this;
         }
-        LancamentoBuilder comTipo(TipoLancamento tipo){
+
+        LancamentoBuilder comTipo(TipoLancamento tipo) {
             lancamento.setTipoLancamento(tipo);
             return this;
         }
 
-        Lancamento build(){
+        Lancamento build() {
             return lancamento;
         }
     }
