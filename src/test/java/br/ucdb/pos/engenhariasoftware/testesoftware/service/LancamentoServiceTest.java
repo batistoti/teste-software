@@ -1,6 +1,8 @@
 package br.ucdb.pos.engenhariasoftware.testesoftware.service;
 
+import br.ucdb.pos.engenhariasoftware.testesoftware.controller.vo.LancamentoVO;
 import br.ucdb.pos.engenhariasoftware.testesoftware.controller.vo.ResultadoVO;
+import br.ucdb.pos.engenhariasoftware.testesoftware.converter.StringToDateConverter;
 import br.ucdb.pos.engenhariasoftware.testesoftware.modelo.Lancamento;
 import br.ucdb.pos.engenhariasoftware.testesoftware.modelo.TipoLancamento;
 import org.mockito.Matchers;
@@ -12,6 +14,7 @@ import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -21,10 +24,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static br.ucdb.pos.engenhariasoftware.testesoftware.modelo.TipoLancamento.ENTRADA;
 import static br.ucdb.pos.engenhariasoftware.testesoftware.modelo.TipoLancamento.SAIDA;
@@ -34,9 +34,10 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class LancamentoServiceTest {
-
+    int tamanhoPagina = 10;
     @Mock
     private LancamentoService lancamentoService;
 
@@ -68,7 +69,7 @@ public class LancamentoServiceTest {
                                 new LancamentoBuilder().comDescricao("Pós-Graduação").comData("10/07/2018").comValor(296.88).comTipo(SAIDA).build(),
                                 new LancamentoBuilder().comDescricao("Abastecimento").comData("08/07/2018").comValor(120.00).comTipo(SAIDA).build(),
                                 new LancamentoBuilder().comDescricao("Refeição").comData("13/07/2018").comValor(94.00).comTipo(SAIDA).build()
-                        ), "Salário", (long) 1
+                        ), "Salário", (long) 10
                 }
         };
     }
