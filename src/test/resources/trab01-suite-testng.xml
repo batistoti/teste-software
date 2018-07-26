@@ -1,0 +1,44 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Suíte-Tests método buscaAjax da Classe LancamentoService">
+    <test name="Cenário com 10 lançamentos">
+        <groups>
+            <run>
+                <include name="cenario10"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="br.ucdb.pos.engenhariasoftware.testesoftware.service.LancamentoServiceTest"></class>
+        </classes>
+    </test>
+    <test name="Cenário com 9 lançamentos">
+        <groups>
+            <run>
+                <include name="cenario9"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="br.ucdb.pos.engenhariasoftware.testesoftware.service.LancamentoServiceTest"></class>
+        </classes>
+    </test>
+    <test name="Cenário com 1 lançamento">
+        <groups>
+            <run>
+                <include name="cenario1"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="br.ucdb.pos.engenhariasoftware.testesoftware.service.LancamentoServiceTest"></class>
+        </classes>
+    </test>
+    <test name="Cenário com 0 lançamento">
+        <groups>
+            <run>
+                <include name="cenario0"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="br.ucdb.pos.engenhariasoftware.testesoftware.service.LancamentoServiceTest"></class>
+        </classes>
+    </test>
+</suite>
+
