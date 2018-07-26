@@ -131,8 +131,9 @@ public class LancamentoServiceTest {
                 // Verifica se cada atributo da classe lançamento está na classe LancamentoVO
                 assertTrue(doesObjectContainField(lancamentoVO, atributo), "Atributo " + atributo + " não existe na Classe LancamentoVO.");
                 //Verificar se cada atributo não está vazio
-                assertNotNull(getMethodValue(lancamentoVO, atributo), "Atributo " + atributo + " é nulo na Classe Lancamento VO.");
-
+                String valorAtributo = getMethodValue(lancamentoVO, atributo).toString();
+                assertTrue(!valorAtributo.equals("") && valorAtributo != null, "Atributo " + atributo + " é nulo na Classe Lancamento VO.");
+                //assertNotNull(getMethodValue(lancamentoVO, atributo), "Atributo " + atributo + " é nulo na Classe Lancamento VO.");
             }
         }
         verify(lancamentoService, atLeastOnce()).buscaAjax(anyString());
