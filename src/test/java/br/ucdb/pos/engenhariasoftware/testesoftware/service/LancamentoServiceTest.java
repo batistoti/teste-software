@@ -74,31 +74,61 @@ public class LancamentoServiceTest {
         return Integer.parseInt(method.replaceAll("\\D+", ""));
     }
 
-    /*======================================================= Cenário com 10 lançamentos =============================================================================*/
+    /**
+     * Teste com cenário com 10 lançamentos
+     * @param lancamentos
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     @Test(dataProvider = "lancamentos", groups = "cenario10")
     public void buscaAjax10LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         this.buscaAjaxTest(lancamentos, 10);
     }
 
-    /*======================================================= Cenário com 9 lançamentos =============================================================================*/
+    /**
+     * Teste com cenário com 9 lançamentos
+     * @param lancamentos
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     @Test(dataProvider = "lancamentos", groups = "cenario9")
     public void buscaAjax9LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         this.buscaAjaxTest(lancamentos, 9);
     }
 
-    /*======================================================= Cenário com 3 lançamentos =============================================================================*/
+    /**
+     * Teste com cenário com 3 lançamentos
+     * @param lancamentos
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     @Test(dataProvider = "lancamentos", groups = "cenario3")
     public void buscaAjax3LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         this.buscaAjaxTest(lancamentos, 3);
     }
 
-    /*======================================================= Cenário com 1 lançamentos =============================================================================*/
+    /**
+     * Teste com cenário com 1 lançamento
+     * @param lancamentos
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     @Test(dataProvider = "lancamentos", groups = "cenario1")
     public void buscaAjax1LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         this.buscaAjaxTest(lancamentos, 1);
     }
 
-    /*======================================================= Cenário com 0 lançamentos =============================================================================*/
+    /**
+     * Teste com cenário com 0 lançamento
+     * @param lancamentos
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     @Test(dataProvider = "lancamentos", groups = "cenario0")
     public void busca0LancamentosAjaxTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         this.buscaAjaxTest(lancamentos, 0);
@@ -122,15 +152,28 @@ public class LancamentoServiceTest {
         when(lancamentoService.conta(anyString())).thenReturn((long) lancamentos.size());
         given(lancamentoService.buscaAjax(anyString())).willCallRealMethod();
 
-        //valida o total de entradas da lista de lançamentos
-        assertEquals(lancamentoService.getTotalEntrada(lancamentos), this.getTotalPorTipo(lancamentos, TipoLancamento.ENTRADA));
-        //validar o total de saídas da lista de lançamento
-        assertEquals(lancamentoService.getTotalSaida(lancamentos), this.getTotalPorTipo(lancamentos, TipoLancamento.SAIDA));
+        /**
+         * Validação do valor total de entradas na lista de lançamentos
+         */
+        BigDecimal totalEntradaEsperado = this.getTotalPorTipo(lancamentos, TipoLancamento.ENTRADA);
+        BigDecimal totalEntradaObtido = lancamentoService.getTotalEntrada(lancamentos);
+        assertEquals(totalEntradaObtido, totalEntradaEsperado, "Era esperado o total de entrade de " + totalEntradaEsperado.toString() + ", mas foi obtido um valor de " + totalEntradaObtido.toString());
+        /**
+         *  Validação do valor total de saídas na lista de lançamentos
+         */
+        BigDecimal totalSaidaEsperado = this.getTotalPorTipo(lancamentos, TipoLancamento.SAIDA);
+        BigDecimal totalSaidadaObtido = lancamentoService.getTotalSaida(lancamentos);
+        assertEquals(totalSaidadaObtido, totalSaidaEsperado, "Era esperado o total de sáida de " + totalSaidaEsperado.toString() + ", mas foi obtido um valor de " + totalSaidadaObtido.toString());
 
-        //validar o tamanho da lista de lançamentos
+        /**
+         * Validação do tamanho da lista de lançamentos
+         */
         long tamanhoObtido = lancamentoService.buscaAjax(anyString()).getTotalRegistros();
         assertEquals(tamanhoObtido, tamanhoEsperado, "Era esperado o tamanho da lista de lançamentos de " + tamanhoEsperado + " registro(s), mas foi retornado " + tamanhoObtido + " registro(s).");
-
+        /**
+         * Validação para garantir que todo atributo da classe Lancamento esteja na classe
+         *  LancamentoVO e não nula
+         */
         final ResultadoVO resultadoVO = lancamentoService.buscaAjax(anyString());
         // Obtém a lista de atributos da classe Lancamento
         Field[] campos = Lancamento.class.getDeclaredFields();
