@@ -44,148 +44,94 @@ public class LancamentoServiceTest {
     @BeforeClass(alwaysRun = true)
     public void init() {
         MockitoAnnotations.initMocks(this);
-        when(lancamentoService.getTotalEntrada(anyListOf(Lancamento.class))).thenCallRealMethod();
-        when(lancamentoService.getTotalSaida(anyListOf(Lancamento.class))).thenCallRealMethod();
-        when(lancamentoService.somaValoresPorTipo(anyListOf(Lancamento.class), any(TipoLancamento.class))).thenCallRealMethod();
-        when(lancamentoService.getResultadoVO(anyListOf(Lancamento.class), anyInt(), anyLong())).thenCallRealMethod();
-        given(lancamentoService.buscaAjax(anyString())).willCallRealMethod();
     }
 
+    /**
+     * DataProvider de lançamentos que devolve uma lista com tamanho baseado na
+     * quantidade encontrada no método que o chama
+     *
+     * @param method método que chama o provider
+     * @return lista de lançamentos para testes
+     */
     @DataProvider(name = "lancamentos")
-    protected Object[][] getLancamentos(ITestContext context) {
-        List<String> includedGroups = Arrays.asList(context.getIncludedGroups());
-        List<Lancamento> lancamentosDefault = Arrays.asList(
-                new LancamentoBuilder().comId((long) 1).comDescricao("Entrada 1").comData("05/07/2018").comValor(5000.00).comTipo(ENTRADA).build(),
-                new LancamentoBuilder().comId((long) 2).comDescricao("Entrada 2").comData("05/07/2018").comValor(170.00).comTipo(ENTRADA).build(),
-                new LancamentoBuilder().comId((long) 3).comDescricao("Entrada 3").comData("05/07/2018").comValor(75.00).comTipo(ENTRADA).build(),
-                new LancamentoBuilder().comId((long) 4).comDescricao("Saída 2").comData("05/07/2018").comValor(1227.00).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 5).comDescricao("Saída 3").comData("06/07/2018").comValor(876.78).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 6).comDescricao("Saída 4").comData("06/07/2018").comValor(455.78).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 7).comDescricao("Saída 5").comData("05/07/2018").comValor(455.78).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 8).comDescricao("Saída 6").comData("10/07/2018").comValor(296.88).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 9).comDescricao("Saída 7").comData("08/07/2018").comValor(120.00).comTipo(SAIDA).build(),
-                new LancamentoBuilder().comId((long) 10).comDescricao("Saída 8").comData("13/07/2018").comValor(94.00).comTipo(SAIDA).build()
-        );
+    protected Object[][] getLancamentos(Method method) {
+        List<Lancamento> lancamentosCenario = new ArrayList<>();
+        for (int i = 0; i < getQtdeLancamentosCenario(method.getName()); i++) {
+            lancamentosCenario.add(new LancamentoBuilder().random().build());
+        }
         return new Object[][]{
-                new Object[]{this.getLancamentosCenario(this.getQtdeLancamentosCenario(includedGroups.get(0)), lancamentosDefault)}
+                new Object[]{lancamentosCenario}
         };
     }
 
     /**
-     * Método que devolve a lista padrão de acordo com a quantidade esperada no cenário
+     * Método que devolve a quantidade de lançamentos esperada baseada no número do método de teste
      *
-     * @param qtdeLancamentosCenario quantidade de registro a ser retornada
-     * @param lancamentosDefault     lista de lançamentos padrão
-     * @return lista de lançamentos a ser usada para testar o cenário
-     */
-    private List<Lancamento> getLancamentosCenario(int qtdeLancamentosCenario, List<Lancamento> lancamentosDefault) {
-        List<Lancamento> lancamentosCenario = new ArrayList<>();
-        for (int i = 0; i < lancamentosDefault.size(); i++) {
-            if (i < qtdeLancamentosCenario)
-                lancamentosCenario.add(lancamentosDefault.get(i));
-        }
-        return lancamentosCenario;
-    }
-
-    /**
-     * Método que devolve a quantidade de lançamentos esperada baseada no número do grupo de teste
-     *
-     * @param group nome do grupo de testes
+     * @param method nome do método de testes
      * @return quantidade de lançamentos do cenário de teste
      */
-    private int getQtdeLancamentosCenario(String group) {
-        return Integer.parseInt(group.replaceAll("\\D+", ""));
+    private int getQtdeLancamentosCenario(String method) {
+        return Integer.parseInt(method.replaceAll("\\D+", ""));
     }
 
     /*======================================================= Cenário com 10 lançamentos =============================================================================*/
     @Test(dataProvider = "lancamentos", groups = "cenario10")
     public void buscaAjax10LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.getTotalEntradaTest(lancamentos, BigDecimal.valueOf(5245.0));
-        this.getTotalSaidaTest(lancamentos, BigDecimal.valueOf(3526.22));
-        this.getTamanhoListaTest(lancamentos, 10);
-        this.getResultadoVOTest(lancamentos);
+        this.buscaAjaxTest(lancamentos, 10);
     }
 
     /*======================================================= Cenário com 9 lançamentos =============================================================================*/
     @Test(dataProvider = "lancamentos", groups = "cenario9")
     public void buscaAjax9LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.getTotalEntradaTest(lancamentos, BigDecimal.valueOf(5245.0));
-        this.getTotalSaidaTest(lancamentos, BigDecimal.valueOf(3432.22));
-        this.getTamanhoListaTest(lancamentos, 9);
-        this.getResultadoVOTest(lancamentos);
+        this.buscaAjaxTest(lancamentos, 9);
     }
 
     /*======================================================= Cenário com 3 lançamentos =============================================================================*/
     @Test(dataProvider = "lancamentos", groups = "cenario3")
     public void buscaAjax3LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.getTotalEntradaTest(lancamentos, BigDecimal.valueOf(5245.0));
-        this.getTotalSaidaTest(lancamentos, BigDecimal.valueOf(0));
-        this.getTamanhoListaTest(lancamentos, 3);
-        this.getResultadoVOTest(lancamentos);
+        this.buscaAjaxTest(lancamentos, 3);
     }
 
     /*======================================================= Cenário com 1 lançamentos =============================================================================*/
     @Test(dataProvider = "lancamentos", groups = "cenario1")
     public void buscaAjax1LancamentosTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.getTotalEntradaTest(lancamentos, BigDecimal.valueOf(5000.00));
-        this.getTotalSaidaTest(lancamentos, BigDecimal.valueOf(0));
-        this.getTamanhoListaTest(lancamentos, 1);
-        this.getResultadoVOTest(lancamentos);
+        this.buscaAjaxTest(lancamentos, 1);
     }
 
     /*======================================================= Cenário com 0 lançamentos =============================================================================*/
     @Test(dataProvider = "lancamentos", groups = "cenario0")
     public void busca0LancamentosAjaxTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        this.getTotalEntradaTest(lancamentos, BigDecimal.valueOf(0));
-        this.getTotalSaidaTest(lancamentos, BigDecimal.valueOf(0));
-        this.getTamanhoListaTest(lancamentos, 0);
-        this.getResultadoVOTest(lancamentos);
+        this.buscaAjaxTest(lancamentos, 0);
     }
 
     /**
-     * Método de teste responsável por validar o total de entradas da lista de lançamentos
+     * Método que realiza os testes necessários do buscaAjax da classe LancamentoService
      *
-     * @param lancamentos lista de lançamento criada para o teste
+     * @param lancamentos     lista de lançamentos gerada
+     * @param tamanhoEsperado tamanho da lista esperada
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
      */
-    private void getTotalEntradaTest(List<Lancamento> lancamentos, BigDecimal totalEsperado) {
-        assertEquals(lancamentoService.getTotalEntrada(lancamentos), totalEsperado);
-        verify(lancamentoService, atLeastOnce()).getTotalEntrada(anyListOf(Lancamento.class));
-    }
-
-    /**
-     * Método de teste responsável por validar o total de entradas da lista de lançamentos
-     *
-     * @param lancamentos lista de lançamento criada para o teste
-     */
-    private void getTotalSaidaTest(List<Lancamento> lancamentos, BigDecimal totalEsperado) {
-        final BigDecimal totalObtido = lancamentoService.getTotalSaida(lancamentos);
-        assertEquals(totalObtido, totalEsperado);
-        verify(lancamentoService, atLeastOnce()).getTotalSaida(anyListOf(Lancamento.class));
-    }
-
-    /**
-     * Teste responsável por validar o tamanho da lista de lançamentos
-     *
-     * @param lancamentos lista de lançamento criada para o teste
-     */
-    private void getTamanhoListaTest(List<Lancamento> lancamentos, long tamanhoEsperado) {
+    private void buscaAjaxTest(List<Lancamento> lancamentos, long tamanhoEsperado) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        when(lancamentoService.getTotalEntrada(anyListOf(Lancamento.class))).thenCallRealMethod();
+        when(lancamentoService.getTotalSaida(anyListOf(Lancamento.class))).thenCallRealMethod();
+        when(lancamentoService.somaValoresPorTipo(anyListOf(Lancamento.class), any(TipoLancamento.class))).thenCallRealMethod();
+        when(lancamentoService.getResultadoVO(anyListOf(Lancamento.class), anyInt(), anyLong())).thenCallRealMethod();
         when(lancamentoService.busca(anyString())).thenReturn(lancamentos);
         when(lancamentoService.conta(anyString())).thenReturn((long) lancamentos.size());
+        given(lancamentoService.buscaAjax(anyString())).willCallRealMethod();
+
+        //valida o total de entradas da lista de lançamentos
+        assertEquals(lancamentoService.getTotalEntrada(lancamentos), this.getTotalPorTipo(lancamentos, TipoLancamento.ENTRADA));
+        //validar o total de saídas da lista de lançamento
+        assertEquals(lancamentoService.getTotalSaida(lancamentos), this.getTotalPorTipo(lancamentos, TipoLancamento.SAIDA));
+
+        //validar o tamanho da lista de lançamentos
         long tamanhoObtido = lancamentoService.buscaAjax(anyString()).getTotalRegistros();
-        String mensagem = "Era espero o tamanho da lista de lançamentos de " + tamanhoEsperado + " registro(s), mas foi retornado " + tamanhoObtido + " registro(s).";
-        assertEquals(tamanhoObtido, tamanhoEsperado, mensagem);
-        verify(lancamentoService, atLeastOnce()).buscaAjax(anyString());
-    }
+        assertEquals(tamanhoObtido, tamanhoEsperado, "Era esperado o tamanho da lista de lançamentos de " + tamanhoEsperado + " registro(s), mas foi retornado " + tamanhoObtido + " registro(s).");
 
-    /**
-     * Método de teste responsával por garantir que todo atributo da classe Lancamento esteja na LancamentoVO e não nula
-     *
-     * @param lancamentos lista de lançamento criada para o teste
-     */
-    private void getResultadoVOTest(List<Lancamento> lancamentos) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        when(lancamentoService.busca(anyString())).thenReturn(lancamentos);
-        when(lancamentoService.conta(anyString())).thenReturn((long) lancamentos.size());
-        ResultadoVO resultadoVO = lancamentoService.buscaAjax(anyString());
+        final ResultadoVO resultadoVO = lancamentoService.buscaAjax(anyString());
         // Obtém a lista de atributos da classe Lancamento
         Field[] campos = Lancamento.class.getDeclaredFields();
         //Percorre a lista de resultado da busca para fazer as validações
@@ -199,9 +145,21 @@ public class LancamentoServiceTest {
                 assertTrue(!valorAtributo.equals("") && valorAtributo != null, "Atributo " + atributo + " é nulo na Classe Lancamento VO.");
             }
         }
-        verify(lancamentoService, atLeastOnce()).buscaAjax(anyString());
     }
 
+    /**
+     * Método que calcula o total por tipo de lançamento da lista gerada aleatoriament
+     *
+     * @param lancamentos lista de lançamentos do teste atual
+     * @param tipo        tipo de lançamento(entrada ou saída)
+     * @return soma dos valores encontrados do tipo na lista
+     */
+    private BigDecimal getTotalPorTipo(List<Lancamento> lancamentos, TipoLancamento tipo) {
+        return lancamentos.stream()
+                .filter(l -> l.getTipoLancamento() == tipo)
+                .map(Lancamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     /**
      * Método que invoca o método get do atributo informado de um classe
@@ -227,6 +185,7 @@ public class LancamentoServiceTest {
         }
         return null;
     }
+
 
     /**
      * Método que busca em uma classe por um atributo específico (privado)
@@ -255,9 +214,10 @@ public class LancamentoServiceTest {
             return this;
         }
 
-        LancamentoBuilder comData(String data) {
-            StringToDateConverter stringToDate = new StringToDateConverter();
-            lancamento.setDataLancamento(stringToDate.convert(data));
+        LancamentoBuilder comData(int dia, int mes, int ano) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(ano, mes, dia);
+            lancamento.setDataLancamento(calendar.getTime());
             return this;
         }
 
@@ -274,6 +234,20 @@ public class LancamentoServiceTest {
         LancamentoBuilder comTipo(TipoLancamento tipo) {
             lancamento.setTipoLancamento(tipo);
             return this;
+        }
+
+        /**
+         * Método que gera o objeto Lancamento de forma aleatória
+         *
+         * @return
+         */
+        LancamentoBuilder random() {
+            Random rand = new Random();
+            return comId(rand.nextLong())
+                    .comData(rand.nextInt(30), rand.nextInt(7), 2018)
+                    .comTipo(rand.nextBoolean() ? TipoLancamento.ENTRADA : TipoLancamento.SAIDA)
+                    .comDescricao("Lançamento " + rand.nextInt())
+                    .comValor(rand.nextInt(100_000) / 100.0);
         }
 
         Lancamento build() {
