@@ -76,6 +76,7 @@ public class LancamentoServiceTest {
 
     /**
      * Teste com cenário com 10 lançamentos
+     *
      * @param lancamentos
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
@@ -88,6 +89,7 @@ public class LancamentoServiceTest {
 
     /**
      * Teste com cenário com 9 lançamentos
+     *
      * @param lancamentos
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
@@ -100,6 +102,7 @@ public class LancamentoServiceTest {
 
     /**
      * Teste com cenário com 3 lançamentos
+     *
      * @param lancamentos
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
@@ -112,6 +115,7 @@ public class LancamentoServiceTest {
 
     /**
      * Teste com cenário com 1 lançamento
+     *
      * @param lancamentos
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
@@ -124,6 +128,7 @@ public class LancamentoServiceTest {
 
     /**
      * Teste com cenário com 0 lançamento
+     *
      * @param lancamentos
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
@@ -144,12 +149,16 @@ public class LancamentoServiceTest {
      * @throws InvocationTargetException
      */
     private void buscaAjaxTest(List<Lancamento> lancamentos, long tamanhoEsperado) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        // Quando chamado qualquer método abaixo, chame o método real
         when(lancamentoService.getTotalEntrada(anyListOf(Lancamento.class))).thenCallRealMethod();
         when(lancamentoService.getTotalSaida(anyListOf(Lancamento.class))).thenCallRealMethod();
         when(lancamentoService.somaValoresPorTipo(anyListOf(Lancamento.class), any(TipoLancamento.class))).thenCallRealMethod();
         when(lancamentoService.getResultadoVO(anyListOf(Lancamento.class), anyInt(), anyLong())).thenCallRealMethod();
+        // Quando chamado método busca, mockito devolve a lista de lançamentos fornecida
         when(lancamentoService.busca(anyString())).thenReturn(lancamentos);
+        // Quando chamado método conta, devolva o tamanho da lista
         when(lancamentoService.conta(anyString())).thenReturn((long) lancamentos.size());
+        // Quando chamado o método alvo buscaAjax, chame o método real
         given(lancamentoService.buscaAjax(anyString())).willCallRealMethod();
 
         /**
@@ -198,6 +207,8 @@ public class LancamentoServiceTest {
      * @return soma dos valores encontrados do tipo na lista
      */
     private BigDecimal getTotalPorTipo(List<Lancamento> lancamentos, TipoLancamento tipo) {
+        if (lancamentos.size() == 0)
+            return BigDecimal.ZERO;
         return lancamentos.stream()
                 .filter(l -> l.getTipoLancamento() == tipo)
                 .map(Lancamento::getValor)
