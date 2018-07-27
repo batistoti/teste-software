@@ -158,6 +158,8 @@ public class LancamentoServiceTest {
         when(lancamentoService.busca(anyString())).thenReturn(lancamentos);
         // Quando chamado método conta, devolva o tamanho da lista
         when(lancamentoService.conta(anyString())).thenReturn((long) lancamentos.size());
+        // Quando chamado método para busca tamanho da página, retorne o parâmetro exigido 10
+        when(lancamentoService.tamanhoPagina()).thenReturn(10);
         // Quando chamado o método alvo buscaAjax, chame o método real
         given(lancamentoService.buscaAjax(anyString())).willCallRealMethod();
 
