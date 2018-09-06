@@ -70,25 +70,26 @@ public class LancamentoControllerTest {
     /**
      * Método que executa fluxo de teste para todos os casos propostos
      *
-     * @param lancamentos lista de lançamentos a ser testada
+     * @param lancamentos   lista de lançamentos a ser testada
+     * @param valorEsperado valor esperado para asserção
      */
     private void executaFluxoTest(List<Lancamento> lancamentos, Double valorEsperado) {
-        //Remover lançamento existenste para não influenciar o teste
+        //Remover lançamento existentes para não influenciar o teste
         removerLancamentos();
         //Insere os lançamentos
         for (Lancamento lancamento : lancamentos) {
             salvarLancamento(lancamento);
         }
-        //Realiza o teste de menor valor nos dois métodos
+        //Realiza o teste de menor valor com os dois métodos
         assertEquals(getMenorLancamentoJsonPathFilter(), valorEsperado, "Erro validação JSON Path Filter.");
         assertEquals(getMenorLancamentoCodigoJava(), valorEsperado, "Erro validação código Java.");
         /**
          * Conclusão:
          *
-         * O método "getMenorLancamentoJsonPathFilter" que  busca do menor valor usando jsontPath Filter não é confiável.
+         * O método "getMenorLancamentoJsonPathFilter" que  busca o menor valor usando jsontPath Filter não é confiável.
          * Para algumas combinações de valores, ele se perde e devolve um valor incorreto. Provavelmente devido ao formato
          * do valor usando "," ao invés de "." como separador de casas decimais. Portanto, o método para buscar o menor valor
-         * usando código Java é o mais correto a usar neste caso de teste.
+         * usando código Java é o correto para usar neste caso de teste.
          */
     }
 
@@ -112,7 +113,6 @@ public class LancamentoControllerTest {
      *
      * @return menor valor encontrado no JSON
      */
-    @Test
     private Double getMenorLancamentoJsonPathFilter() {
         String valor = buscaLancamentos().getString("lancamentos.min{it.valor}.valor");
         return new StringToMoneyConverter().convert(valor).doubleValue();
