@@ -147,7 +147,6 @@ public class LancamentoControllerTest {
     /**
      * Método que busca os lancamentos
      *
-     * @param filtro
      * @return
      */
     private List<Lancamento> getLancamentos() {
