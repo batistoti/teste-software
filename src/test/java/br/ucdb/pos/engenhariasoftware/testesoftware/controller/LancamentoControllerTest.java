@@ -128,6 +128,10 @@ public class LancamentoControllerTest {
         return getMenorValorLancamento(getLancamentos());
     }
 
+    /**
+     * Método que salva um registro de lançamento
+     * @param lancamento objeto da classe Lancamento
+     */
     private void salvarLancamento(Lancamento lancamento) {
         Response response = given().when()
                 .formParam("descricao", lancamento.getDescricao())
@@ -210,22 +214,13 @@ public class LancamentoControllerTest {
             return this;
         }
 
-        LancamentoBuilder comCategoria(Categoria categoria) {
-            lancamento.setCategoria(categoria);
+        LancamentoBuilder comCategoria() {
+            final SecureRandom random = new SecureRandom();
+            int x = random.nextInt(Categoria.class.getEnumConstants().length);
+            lancamento.setCategoria(Categoria.class.getEnumConstants()[x]);
             return this;
         }
 
-
-        /**
-         * Método que devolve um valor aleatório de uma categoria
-         *
-         * @return
-         */
-        private Categoria getCategoria() {
-            final SecureRandom random = new SecureRandom();
-            int x = random.nextInt(Categoria.class.getEnumConstants().length);
-            return Categoria.class.getEnumConstants()[x];
-        }
 
         /**
          * Método que gera o objeto Lancamento de forma aleatória
@@ -234,11 +229,11 @@ public class LancamentoControllerTest {
          */
         LancamentoBuilder random(Double valor) {
             Random rand = new Random();
-            return comData(rand.nextInt(8), rand.nextInt(9), 2018)
+            return comData(rand.nextInt(8), 9, 2018)
                     .comTipo(rand.nextBoolean() ? TipoLancamento.ENTRADA : TipoLancamento.SAIDA)
                     .comDescricao("Assured Test")
                     .comValor(valor)
-                    .comCategoria(getCategoria());
+                    .comCategoria();
         }
 
 
